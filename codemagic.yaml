@@ -1111,3 +1111,54 @@ workflows:
         credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
         submit_as_draft: true
+  ios-unsigned-for-esign:
+    name: iOS unsigned IPA for ESign
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    working_directory: ios/ios-native-quick-start
+    environment:
+      xcode: latest
+      cocoapods: default
+      vars:
+        XCODE_WORKSPACE: "swiftly.xcworkspace"
+        XCODE_SCHEME: "swiftly"
+        BUNDLE_ID: "com.EQcPEO.ohXKxe"
+    scripts:
+      - name: Install CocoaPods
+        script: |
+          pod install
+
+      - name: Build unsigned iOS app
+        script: |
+          set -e
+          xcodebuild \
+            -workspace "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath "$CM_BUILD_DIR/build/DerivedData" \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Package unsigned IPA
+        script: |
+          set -e
+          APP_DIR="$CM_BUILD_DIR/build/DerivedData/Build/Products/Release-iphoneos"
+          APP_PATH="$(find "$APP_DIR" -maxdepth 1 -type d -name '*.app' -print -quit)"
+          if [ -z "$APP_PATH" ]; then
+            echo "Build succeeded but .app was not found"
+            exit 1
+          fi
+          OUT="$CM_BUILD_DIR/build/ios/ipa"
+          mkdir -p "$OUT/Payload"
+          cp -R "$APP_PATH" "$OUT/Payload/"
+          cd "$OUT"
+          zip -qry unsigned-for-esign.ipa Payload
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
