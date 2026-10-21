@@ -1158,7 +1158,8 @@ workflows:
           cp -R "$APP_PATH" "$OUT/Payload/"
           cd "$OUT"
           zip -qry unsigned-for-esign.ipa Payload
-       artifacts:
-      - build/ios/ipa/*.ipa
-      - /tmp/xcodebuild_logs/*.log
+       
+      artifacts:
+        - build/ios/ipa/*.ipa
+        - /tmp/xcodebuild_logs/*.log
 
