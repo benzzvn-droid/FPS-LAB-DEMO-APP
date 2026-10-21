@@ -1111,7 +1111,7 @@ workflows:
         credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
         submit_as_draft: true
-  ios-unsigned-for-esign:
+          ios-unsigned-for-esign:
     name: iOS unsigned IPA for ESign
     instance_type: mac_mini_m2
     max_build_duration: 60
@@ -1158,8 +1158,7 @@ workflows:
           cp -R "$APP_PATH" "$OUT/Payload/"
           cd "$OUT"
           zip -qry unsigned-for-esign.ipa Payload
-       
-      artifacts:
-        - build/ios/ipa/*.ipa
-        - /tmp/xcodebuild_logs/*.log
-
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+  
